@@ -462,6 +462,7 @@
     }
 
     // ── Fetch helpers ────────────────────────────────────────────────────────
+    // TODO: need to look for a server side requests or make a backend proxy to avoid CORS issues with Binance API
 
     async function fetchBinance(payType, tradeType) {
       const res = await fetch('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
