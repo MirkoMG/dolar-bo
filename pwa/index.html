@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#080f1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Dólar BO" />
+  <meta name="description" content="Tipo de cambio paralelo USDT/BOB en tiempo real — P2P Binance + BCB" />
+  <title>Dólar BO</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080f1a;
+      --surface:   #0d1829;
+      --border:    #1a2d47;
+      --accent:    #f59e0b;
+      --accent2:   #fbbf24;
+      --buy:       #34d399;
+      --sell:      #f87171;
+      --spread:    #fcd34d;
+      --offers:    #93c5fd;
+      --bcb:       #c084fc;
+      --white:     #f1f5f9;
+      --muted:     #64748b;
+      --dim:       #334155;
+      --font-mono: 'Space Mono', monospace;
+      --font-disp: 'Syne', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font-mono);
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+    }
+
+    body {
+      min-height: 100dvh;
+      padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Grid background ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.2;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ── */
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0 16px 24px;
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: 20px 0 16px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .header-left h1 {
+      font-family: var(--font-disp);
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.5px;
+      color: var(--white);
+    }
+
+    .header-left h1 span {
+      color: var(--accent);
+    }
+
+    .header-left .subtitle {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .refresh-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .refresh-btn:active {
+      background: var(--border);
+    }
+
+    .refresh-btn svg {
+      transition: transform 0.4s ease;
+    }
+
+    .refresh-btn.spinning svg {
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .last-updated {
+      font-size: 9px;
+      color: var(--dim);
+    }
+
+    /* ── Amount selector ── */
+    .amount-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      align-items: center;
+    }
+
+    .amount-label {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .amount-chips {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .chip.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    /* ── Table card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: fadeUp 0.3s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-family: var(--font-disp);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .card-badge {
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Table ── */
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th {
+      font-size: 8px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 6px 14px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table th:first-child { text-align: left; }
+
+    .table td {
+      font-size: 11px;
+      padding: 7px 14px;
+      text-align: right;
+      border-bottom: 1px solid rgba(26, 45, 71, 0.5);
+      transition: background 0.15s;
+    }
+
+    .table td:first-child { text-align: left; }
+
+    .table tr:last-child td { border-bottom: none; }
+
+    .table tbody tr {
+      opacity: 0;
+      animation: fadeUp 0.25s ease forwards;
+    }
+
+    /* staggered row animation */
+    .table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+    .table tbody tr:nth-child(2) { animation-delay: 0.10s; }
+    .table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+    .table tbody tr:nth-child(4) { animation-delay: 0.20s; }
+    .table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+    .table tbody tr:nth-child(6) { animation-delay: 0.30s; }
+    .table tbody tr:nth-child(7) { animation-delay: 0.35s; }
+
+    .bank-name {
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .val-buy    { color: var(--buy); }
+    .val-sell   { color: var(--sell); }
+    .val-spread { color: var(--spread); font-size: 10px; }
+    .val-offers { color: var(--offers); font-size: 10px; }
+    .val-bcb    { color: var(--bcb); }
+    .val-muted  { color: var(--muted); }
+
+    /* ── BCB card ── */
+    .bcb-card {
+      animation-delay: 0.2s;
+    }
+
+    /* ── Skeleton loader ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--border) 25%, var(--dim) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: auto;
+      padding-top: 16px;
+      text-align: center;
+      font-size: 9px;
+      color: var(--dim);
+      letter-spacing: 0.06em;
+      line-height: 1.6;
+    }
+
+    .footer a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    /* ── Error state ── */
+    .error-row td {
+      color: var(--muted);
+      font-size: 10px;
+      text-align: center;
+      padding: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <h1>Dólar <span>BO</span></h1>
+        <div class="subtitle">P2P Binance · BCB · Bs/USDT</div>
+      </div>
+      <div class="header-right">
+        <button class="refresh-btn" id="refreshBtn" onclick="refresh()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+            <polyline points="21 3 21 9 15 9"/>
+          </svg>
+          Actualizar
+        </button>
+        <div class="last-updated" id="lastUpdated">—</div>
+      </div>
+    </header>
+
+    <!-- Amount selector -->
+    <div class="amount-row">
+      <span class="amount-label">Monto Bs.</span>
+      <div class="amount-chips">
+        <button class="chip" onclick="setAmount(500)">500</button>
+        <button class="chip active" onclick="setAmount(1000)">1.000</button>
+        <button class="chip" onclick="setAmount(5000)">5.000</button>
+        <button class="chip" onclick="setAmount(10000)">10.000</button>
+      </div>
+    </div>
+
+    <!-- P2P Table -->
+    <div class="card" id="p2pCard">
+      <div class="card-header">
+        <span class="card-title">P2P Binance</span>
+        <span class="card-badge" id="p2pBadge">avg top 5</span>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Banco</th>
+            <th>Compra</th>
+            <th>Venta</th>
+            <th>Diff</th>
+            <th>OF</th>
+          </tr>
+        </thead>
+        <tbody id="p2pBody">
+          <!-- filled by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BCB Table -->
+    <div class="card bcb-card" id="bcbCard">
+      <div class="card-header">
+        <span class="card-title">Banco Central de Bolivia</span>
+        <span class="card-badge">bcb.gob.bo</span>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Compra</th>
+            <th>Venta</th>
+            <th colspan="2"></th>
+          </tr>
+        </thead>
+        <tbody id="bcbBody">
+          <!-- filled by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>Precios referenciales · No es asesoría financiera</div>
+      <div>Auto-actualiza cada 5 min · <span id="footerAmount">Bs. 1.000</span></div>
+    </footer>
+
+  </div>
+
+  <script>
+    // ── Config ──────────────────────────────────────────────────────────────
+
+    const CONFIG = {
+      rows:    5,
+      amount:  1000,
+      refresh: 5 * 60 * 1000,
+      asset:   'USDT',
+      fiat:    'BOB',
+    };
+
+    const BANKS = [
+      { id: 'BancoDeBolivia',  label: 'BNB'       },
+      { id: 'BancoUnion',      label: 'Union'     },
+      { id: 'BancoGanadero',   label: 'Ganadero'  },
+      { id: 'BancoSantaCruz',  label: 'Mercantil' },
+      { id: 'TigoMoney',       label: 'Tigo'      },
+      { id: 'BancoEconomico',  label: 'Economico' },
+      { id: 'BancoDeCredito',  label: 'BCP'       },
+    ];
+
+    let refreshTimer = null;
+
+    // ── Amount selector ──────────────────────────────────────────────────────
+
+    function setAmount(val) {
+      CONFIG.amount = val;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('footerAmount').textContent = 'Bs. ' + val.toLocaleString('es-BO');
+      refresh();
+    }
+
+    // ── Fetch helpers ────────────────────────────────────────────────────────
+    // TODO: need to look for a server side requests or make a backend proxy to avoid CORS issues with Binance API
+
+    async function fetchBinance(payType, tradeType) {
+      const res = await fetch('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          proMerchantAds: false,
+          page: 1,
+          rows: CONFIG.rows,
+          transAmount: CONFIG.amount,
+          payTypes: [payType],
+          asset: CONFIG.asset,
+          fiat: CONFIG.fiat,
+          tradeType,
+        }),
+      });
+      return res.json();
+    }
+
+    function averagePrice(json) {
+      if (!json || !json.data || json.data.length === 0) return { avg: null, count: 0 };
+      const prices = json.data
+        .map(d => d && d.adv && d.adv.price ? parseFloat(d.adv.price) : null)
+        .filter(p => p !== null);
+      if (prices.length === 0) return { avg: null, count: 0 };
+      return { avg: prices.reduce((a, b) => a + b, 0) / prices.length, count: prices.length };
+    }
+
+    async function fetchAllP2P() {
+      const promises = BANKS.map(bank =>
+        Promise.all([
+          fetchBinance(bank.id, 'BUY').catch(() => null),
+          fetchBinance(bank.id, 'SELL').catch(() => null),
+        ])
+      );
+      const responses = await Promise.all(promises);
+      return BANKS.map((bank, i) => {
+        const buy  = averagePrice(responses[i][0]);
+        const sell = averagePrice(responses[i][1]);
+        const spread = (buy.avg && sell.avg) ? sell.avg - buy.avg : null;
+        const pct    = (buy.avg && sell.avg) ? (spread / buy.avg) * 100 : null;
+        return {
+          label:  bank.label,
+          buy:    buy.avg,
+          sell:   sell.avg,
+          spread, pct,
+          offers: Math.min(buy.count, sell.count),
+        };
+      });
+    }
+
+    async function fetchBCB() {
+      try {
+        // corsproxy.io relays the request to bypass CORS
+        const res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://www.bcb.gob.bo/'), {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15',
+          }
+        });
+        const html = await res.text();
+
+        // Official rate — bcb-val sm
+        const smMatches = html.match(/class="bcb-val sm">([\d,]+)</g) || [];
+        const parseVal = s => s ? parseFloat(s.replace(/class="bcb-val(?:\s+sm)?">/, '').replace('<', '').replace(',', '.')) : null;
+        const officialBuy  = parseVal(smMatches[0]);
+        const officialSell = parseVal(smMatches[1]);
+
+        // Referencial — bcb-val without sm, after the heading
+        const refIdx = html.indexOf('Valor referencial del d');
+        const refHtml = refIdx !== -1 ? html.slice(refIdx) : '';
+        const refMatches = refHtml.match(/class="bcb-val">([\d,]+)</g) || [];
+        const refBuy  = parseVal(refMatches[0]);
+        const refSell = parseVal(refMatches[1]);
+
+        return { officialBuy, officialSell, refBuy, refSell };
+      } catch (e) {
+        return { officialBuy: null, officialSell: null, refBuy: null, refSell: null };
+      }
+    }
+
+    // ── Render helpers ───────────────────────────────────────────────────────
+
+    function fmt(val, dec) {
+      if (val === null || val === undefined) return '<span class="val-muted">—</span>';
+      return val.toFixed(dec !== undefined ? dec : 2);
+    }
+
+    function skeletonRow(cols) {
+      return '<tr>' + Array(cols).fill('<td><span class="skeleton" style="width:40px;height:10px;"></span></td>').join('') + '</tr>';
+    }
+
+    function renderP2P(data) {
+      const body = document.getElementById('p2pBody');
+      if (!data || data.length === 0) {
+        body.innerHTML = '<tr class="error-row"><td colspan="5">Error al cargar datos</td></tr>';
+        return;
+      }
+      body.innerHTML = data.map(row => {
+        const spreadStr = row.spread !== null
+          ? `<span class="val-spread">${row.spread.toFixed(2)} <span class="val-muted">(${row.pct.toFixed(1)}%)</span></span>`
+          : '<span class="val-muted">—</span>';
+        const offersStr = `<span class="val-offers">${row.offers}/${CONFIG.rows}</span>`;
+        return `<tr>
+          <td><span class="bank-name">${row.label}</span></td>
+          <td class="val-buy">${fmt(row.buy)}</td>
+          <td class="val-sell">${fmt(row.sell)}</td>
+          <td>${spreadStr}</td>
+          <td>${offersStr}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderBCB(bcb) {
+      const body = document.getElementById('bcbBody');
+      body.innerHTML = `
+        <tr>
+          <td><span class="val-bcb">TC Oficial</span></td>
+          <td class="val-buy">${fmt(bcb.officialBuy)}</td>
+          <td class="val-sell">${fmt(bcb.officialSell)}</td>
+          <td colspan="2" class="val-muted" style="font-size:9px">Tipo de cambio</td>
+        </tr>
+        <tr>
+          <td><span class="val-bcb">Referencial</span></td>
+          <td class="val-buy">${fmt(bcb.refBuy)}</td>
+          <td class="val-sell">${fmt(bcb.refSell)}</td>
+          <td colspan="2" class="val-muted" style="font-size:9px">Valor referencial</td>
+        </tr>
+      `;
+    }
+
+    function showSkeletons() {
+      document.getElementById('p2pBody').innerHTML = Array(7).fill(skeletonRow(5)).join('');
+      document.getElementById('bcbBody').innerHTML = Array(2).fill(skeletonRow(4)).join('');
+    }
+
+    function updateTimestamp() {
+      const now = new Date();
+      document.getElementById('lastUpdated').textContent =
+        'Actualizado ' + now.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ── Main refresh ─────────────────────────────────────────────────────────
+
+    async function refresh() {
+      const btn = document.getElementById('refreshBtn');
+      btn.classList.add('spinning');
+      showSkeletons();
+
+      try {
+        const [p2pData, bcbData] = await Promise.all([fetchAllP2P(), fetchBCB()]);
+        renderP2P(p2pData);
+        renderBCB(bcbData);
+        updateTimestamp();
+      } catch (e) {
+        document.getElementById('p2pBody').innerHTML =
+          '<tr class="error-row"><td colspan="5">Error de conexión</td></tr>';
+      }
+
+      btn.classList.remove('spinning');
+
+      // Reset auto-refresh timer
+      if (refreshTimer) clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(refresh, CONFIG.refresh);
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    refresh();
+  </script>
+</body>
+</html>
