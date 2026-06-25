@@ -1,21 +1,18 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#080f1a" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Dólar BO" />
-  <meta name="description" content="Tipo de cambio paralelo USDT/BOB en tiempo real — P2P Binance + BCB" />
+<html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#080f1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Dólar BO">
+  <meta name="description" content="Tipo de cambio paralelo USDT/BOB en tiempo real — P2P Binance + BCB">
   <title>Dólar BO</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;family=Syne:wght@700;800&amp;display=swap" rel="stylesheet">
 
   <style>
-    /* ── Reset & Base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -52,7 +49,6 @@
       flex-direction: column;
     }
 
-    /* ── Noise texture overlay ── */
     body::before {
       content: '';
       position: fixed;
@@ -63,7 +59,6 @@
       z-index: 0;
     }
 
-    /* ── Grid background ── */
     body::after {
       content: '';
       position: fixed;
@@ -77,7 +72,6 @@
       z-index: 0;
     }
 
-    /* ── Layout ── */
     .app {
       position: relative;
       z-index: 1;
@@ -108,9 +102,7 @@
       color: var(--white);
     }
 
-    .header-left h1 span {
-      color: var(--accent);
-    }
+    .header-left h1 span { color: var(--accent); }
 
     .header-left .subtitle {
       font-size: 10px;
@@ -143,26 +135,13 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .refresh-btn:active {
-      background: var(--border);
-    }
+    .refresh-btn:active { background: var(--border); }
+    .refresh-btn svg { transition: transform 0.4s ease; }
+    .refresh-btn.spinning svg { animation: spin 0.6s linear infinite; }
 
-    .refresh-btn svg {
-      transition: transform 0.4s ease;
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .refresh-btn.spinning svg {
-      animation: spin 0.6s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .last-updated {
-      font-size: 9px;
-      color: var(--dim);
-    }
+    .last-updated { font-size: 9px; color: var(--dim); }
 
     /* ── Amount selector ── */
     .amount-row {
@@ -180,11 +159,7 @@
       white-space: nowrap;
     }
 
-    .amount-chips {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
+    .amount-chips { display: flex; gap: 4px; flex-wrap: wrap; }
 
     .chip {
       font-family: var(--font-mono);
@@ -205,7 +180,7 @@
       background: rgba(245, 158, 11, 0.08);
     }
 
-    /* ── Table card ── */
+    /* ── Cards ── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -217,9 +192,7 @@
       animation: fadeUp 0.3s ease forwards;
     }
 
-    @keyframes fadeUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
     .card-header {
       padding: 10px 14px 8px;
@@ -238,17 +211,10 @@
       color: var(--muted);
     }
 
-    .card-badge {
-      font-size: 9px;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-    }
+    .card-badge { font-size: 9px; color: var(--muted); letter-spacing: 0.06em; }
 
     /* ── Table ── */
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    .table { width: 100%; border-collapse: collapse; }
 
     .table th {
       font-size: 8px;
@@ -272,7 +238,6 @@
     }
 
     .table td:first-child { text-align: left; }
-
     .table tr:last-child td { border-bottom: none; }
 
     .table tbody tr {
@@ -280,7 +245,6 @@
       animation: fadeUp 0.25s ease forwards;
     }
 
-    /* staggered row animation */
     .table tbody tr:nth-child(1) { animation-delay: 0.05s; }
     .table tbody tr:nth-child(2) { animation-delay: 0.10s; }
     .table tbody tr:nth-child(3) { animation-delay: 0.15s; }
@@ -289,11 +253,7 @@
     .table tbody tr:nth-child(6) { animation-delay: 0.30s; }
     .table tbody tr:nth-child(7) { animation-delay: 0.35s; }
 
-    .bank-name {
-      color: var(--white);
-      font-weight: 700;
-    }
-
+    .bank-name { color: var(--white); font-weight: 700; }
     .val-buy    { color: var(--buy); }
     .val-sell   { color: var(--sell); }
     .val-spread { color: var(--spread); font-size: 10px; }
@@ -301,12 +261,61 @@
     .val-bcb    { color: var(--bcb); }
     .val-muted  { color: var(--muted); }
 
-    /* ── BCB card ── */
-    .bcb-card {
-      animation-delay: 0.2s;
+    .bcb-card { animation-delay: 0.15s; }
+    .widget-card { animation-delay: 0.25s; }
+
+    /* ── Widget card buttons ── */
+    .widget-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    /* ── Skeleton loader ── */
+    .widget-desc {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .widget-step {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .widget-step-secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .widget-step-primary {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .widget-step-primary:active  { background: rgba(245, 158, 11, 0.16); }
+    .widget-step-secondary:active { background: var(--border); }
+
+    .widget-hint {
+      font-size: 9px;
+      color: var(--dim);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ── Skeleton ── */
     .skeleton {
       background: linear-gradient(90deg, var(--border) 25%, var(--dim) 50%, var(--border) 75%);
       background-size: 200% 100%;
@@ -331,12 +340,9 @@
       line-height: 1.6;
     }
 
-    .footer a {
-      color: var(--muted);
-      text-decoration: none;
-    }
+    .footer a { color: var(--muted); text-decoration: none; }
 
-    /* ── Error state ── */
+    /* ── Error ── */
     .error-row td {
       color: var(--muted);
       font-size: 10px;
@@ -357,8 +363,8 @@
       <div class="header-right">
         <button class="refresh-btn" id="refreshBtn" onclick="refresh()">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-            <polyline points="21 3 21 9 15 9"/>
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+            <polyline points="21 3 21 9 15 9"></polyline>
           </svg>
           Actualizar
         </button>
@@ -381,7 +387,7 @@
     <div class="card" id="p2pCard">
       <div class="card-header">
         <span class="card-title">P2P Binance</span>
-        <span class="card-badge" id="p2pBadge">avg top 5</span>
+        <span class="card-badge">avg top 5</span>
       </div>
       <table class="table">
         <thead>
@@ -393,9 +399,7 @@
             <th>OF</th>
           </tr>
         </thead>
-        <tbody id="p2pBody">
-          <!-- filled by JS -->
-        </tbody>
+        <tbody id="p2pBody"></tbody>
       </table>
     </div>
 
@@ -414,22 +418,50 @@
             <th colspan="2"></th>
           </tr>
         </thead>
-        <tbody id="bcbBody">
-          <!-- filled by JS -->
-        </tbody>
+        <tbody id="bcbBody"></tbody>
       </table>
+    </div>
+
+    <!-- iOS Widget Card -->
+    <div class="card widget-card">
+      <div class="card-header">
+        <span class="card-title">Widget iOS</span>
+        <span class="card-badge">Scriptable</span>
+      </div>
+      <div class="widget-body">
+        <p class="widget-desc">
+          Tenés iPhone? Agregá el widget directamente a tu pantalla de inicio
+          y ve los precios sin abrir ninguna app.
+        </p>
+        <a class="widget-step widget-step-secondary" href="https://apps.apple.com/us/app/scriptable/id1405459188" target="_blank">
+          1. Descargar Scriptable (gratis)
+        </a>
+        <a class="widget-step widget-step-primary" href="https://raw.githubusercontent.com/mirkomg/dolar-bo/main/scriptable/dolar-bo.js" target="_blank">
+          2. Descargar dolar-bo.js
+        </a>
+        <p class="widget-hint">
+          Abrí el link en Safari → seleccioná todo → copiá → pegá en Scriptable<br>
+          Agregá el widget Medium a tu pantalla de inicio y seleccioná "Dólar BO"
+        </p>
+      </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
       <div>Precios referenciales · No es asesoría financiera</div>
       <div>Auto-actualiza cada 5 min · <span id="footerAmount">Bs. 1.000</span></div>
+      <div style="margin-top: 6px;">
+        <a href="https://github.com/mirkomg/dolar-bo" target="_blank">github.com/mirkomg/dolar-bo</a>
+      </div>
     </footer>
 
   </div>
 
   <script>
-    // ── Config ──────────────────────────────────────────────────────────────
+    // ── Config ────────────────────────────────────────────────────────────────
+
+    // Cloudflare Worker — CORS proxy for Binance P2P and BCB
+    const WORKER = 'https://dolar-bo.proxy-serverless.workers.dev';
 
     const CONFIG = {
       rows:    5,
@@ -444,14 +476,12 @@
       { id: 'BancoUnion',      label: 'Union'     },
       { id: 'BancoGanadero',   label: 'Ganadero'  },
       { id: 'BancoSantaCruz',  label: 'Mercantil' },
-      { id: 'TigoMoney',       label: 'Tigo'      },
-      { id: 'BancoEconomico',  label: 'Economico' },
       { id: 'BancoDeCredito',  label: 'BCP'       },
     ];
 
     let refreshTimer = null;
 
-    // ── Amount selector ──────────────────────────────────────────────────────
+    // ── Amount selector ───────────────────────────────────────────────────────
 
     function setAmount(val) {
       CONFIG.amount = val;
@@ -461,11 +491,10 @@
       refresh();
     }
 
-    // ── Fetch helpers ────────────────────────────────────────────────────────
-    // TODO: need to look for a server side requests or make a backend proxy to avoid CORS issues with Binance API
+    // ── Fetch helpers ─────────────────────────────────────────────────────────
 
     async function fetchBinance(payType, tradeType) {
-      const res = await fetch('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
+      const res = await fetch(WORKER + '/binance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -516,26 +545,35 @@
 
     async function fetchBCB() {
       try {
-        // corsproxy.io relays the request to bypass CORS
-        const res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://www.bcb.gob.bo/'), {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15',
-          }
-        });
+        const res = await fetch(WORKER + '/bcb');
         const html = await res.text();
 
-        // Official rate — bcb-val sm
-        const smMatches = html.match(/class="bcb-val sm">([\d,]+)</g) || [];
-        const parseVal = s => s ? parseFloat(s.replace(/class="bcb-val(?:\s+sm)?">/, '').replace('<', '').replace(',', '.')) : null;
-        const officialBuy  = parseVal(smMatches[0]);
-        const officialSell = parseVal(smMatches[1]);
+        function extractVals(slice, n) {
+          const matches = slice.match(/class="bcb-val(?:\s+sm)?">([^<]+)</g) || [];
+          const results = [];
+          for (var i = 0; i < Math.min(n, matches.length); i++) {
+            const raw = matches[i]
+              .replace(/class="bcb-val(?:\s+sm)?">/, '')
+              .replace('<', '')
+              .replace(',', '.');
+            results.push(parseFloat(raw));
+          }
+          return results;
+        }
 
-        // Referencial — bcb-val without sm, after the heading
-        const refIdx = html.indexOf('Valor referencial del d');
-        const refHtml = refIdx !== -1 ? html.slice(refIdx) : '';
-        const refMatches = refHtml.match(/class="bcb-val">([\d,]+)</g) || [];
-        const refBuy  = parseVal(refMatches[0]);
-        const refSell = parseVal(refMatches[1]);
+        const tcStart  = html.indexOf('Tipo de cambio');
+        const refStart = html.indexOf('Valor referencial del d');
+        const omaStart = html.indexOf('Operaciones de mercado abierto');
+
+        const tcHtml  = (tcStart !== -1 && refStart !== -1) ? html.slice(tcStart, refStart) : '';
+        const tcVals  = extractVals(tcHtml, 2);
+        const officialBuy  = tcVals[0] || null;
+        const officialSell = tcVals[1] || null;
+
+        const refHtml = (refStart !== -1 && omaStart !== -1) ? html.slice(refStart, omaStart) : '';
+        const refVals = extractVals(refHtml, 2);
+        const refBuy  = refVals[0] || null;
+        const refSell = refVals[1] || null;
 
         return { officialBuy, officialSell, refBuy, refSell };
       } catch (e) {
@@ -543,7 +581,7 @@
       }
     }
 
-    // ── Render helpers ───────────────────────────────────────────────────────
+    // ── Render helpers ────────────────────────────────────────────────────────
 
     function fmt(val, dec) {
       if (val === null || val === undefined) return '<span class="val-muted">—</span>';
@@ -594,7 +632,7 @@
     }
 
     function showSkeletons() {
-      document.getElementById('p2pBody').innerHTML = Array(7).fill(skeletonRow(5)).join('');
+      document.getElementById('p2pBody').innerHTML = Array(5).fill(skeletonRow(5)).join('');
       document.getElementById('bcbBody').innerHTML = Array(2).fill(skeletonRow(4)).join('');
     }
 
@@ -604,7 +642,7 @@
         'Actualizado ' + now.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
     }
 
-    // ── Main refresh ─────────────────────────────────────────────────────────
+    // ── Main refresh ──────────────────────────────────────────────────────────
 
     async function refresh() {
       const btn = document.getElementById('refreshBtn');
@@ -622,14 +660,12 @@
       }
 
       btn.classList.remove('spinning');
-
-      // Reset auto-refresh timer
       if (refreshTimer) clearTimeout(refreshTimer);
       refreshTimer = setTimeout(refresh, CONFIG.refresh);
     }
 
-    // ── Init ─────────────────────────────────────────────────────────────────
+    // ── Init ──────────────────────────────────────────────────────────────────
     refresh();
   </script>
-</body>
-</html>
+
+</body></html>
