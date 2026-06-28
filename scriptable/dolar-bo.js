@@ -2,7 +2,7 @@
  * Dolar Bolivia P2P Prices Widget V2.0 - by @mirkomg
  *
  * A Scriptable iOS widget that fetches real-time USDT/BOB exchange rates
- * from Binance P2P for multiple payment methods and Parallel 
+ * from Binance P2P for multiple payment methods and BCB official rates.
  * Displays buy/sell prices in a compact horizontal layout
  * with color-coded pricing indicators.
  ************************************************************************************/
@@ -43,7 +43,7 @@ const C = {
   white:   '#F1F5F9',
   dim:     '#475569',
   divider: '#1E3A5F',
-  bcb:     '#C084FC',  // purple — visually distinct from P2P rows
+  bcb:     '#C084FC',
 };
 
 const COL = {
@@ -80,43 +80,44 @@ async function fetchBCB() {
   try {
     const req = new Request('https://www.bcb.gob.bo/');
     req.headers = {
-      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'es-BO,es;q=0.9',
     };
     const html = await req.loadString();
 
-    // Helper: extract first N occurrences of bcb-val (any class) after a slice
-    function extractVals(slice, n) {
-      const matches = slice.match(/class="bcb-val(?:\s+sm)?">([^<]+)</g) || [];
-      const results = [];
-      for (var i = 0; i < Math.min(n, matches.length); i++) {
-        const raw = matches[i].replace(/class="bcb-val(?:\s+sm)?">/, '').replace(',', '.');
-        results.push(parseFloat(raw));
-      }
-      return results;
+    // ── TC Oficial — single value in bcb-tco-num ──
+    // Slice between 'Tipo de cambio oficial' and 'Valor referencial del d'
+    const tcoStart = html.indexOf('Tipo de cambio oficial');
+    const refStart = html.indexOf('Valor referencial del d');
+    const tcoHtml  = (tcoStart !== -1 && refStart !== -1)
+      ? html.slice(tcoStart, refStart)
+      : '';
+    const tcoMatch     = tcoHtml.match(/class="bcb-tco-num">([\d,]+)</);
+    const officialRate = tcoMatch
+      ? parseFloat(tcoMatch[1].replace(',', '.'))
+      : null;
+
+    // ── Referencial — buy/sell in bcb-val ──
+    // Slice between 'Valor referencial del d' and 'Operaciones de mercado abierto'
+    const omaStart = html.indexOf('Operaciones de mercado abierto');
+    const refHtml  = (refStart !== -1 && omaStart !== -1)
+      ? html.slice(refStart, omaStart)
+      : '';
+
+    const refMatches = refHtml.match(/class="bcb-val">([\d,]+)</g) || [];
+
+    function parseVal(s) {
+      return s
+        ? parseFloat(s.replace(/class="bcb-val">/, '').replace('<', '').replace(',', '.'))
+        : null;
     }
 
-    // Slice HTML to isolate each section by its heading
-    const tcStart  = html.indexOf('Tipo de cambio');
-    const refStart = html.indexOf('Valor referencial del d');
-    const omaStart = html.indexOf('Operaciones de mercado abierto');
+    const refBuy  = parseVal(refMatches[0]);
+    const refSell = parseVal(refMatches[1]);
 
-    // Official TC: slice between TC heading and referencial heading
-    const tcHtml  = (tcStart !== -1 && refStart !== -1) ? html.slice(tcStart, refStart) : '';
-    const tcVals  = extractVals(tcHtml, 2);
-    const officialBuy  = tcVals[0] || null;
-    const officialSell = tcVals[1] || null;
-
-    // Referencial: slice between referencial heading and OMA heading
-    const refHtml = (refStart !== -1 && omaStart !== -1) ? html.slice(refStart, omaStart) : '';
-    const refVals = extractVals(refHtml, 2);
-    const refBuy  = refVals[0] || null;
-    const refSell = refVals[1] || null;
-
-    return { officialBuy, officialSell, refBuy, refSell };
+    return { officialRate, refBuy, refSell };
   } catch (e) {
-    return { officialBuy: null, officialSell: null, refBuy: null, refSell: null };
+    return { officialRate: null, refBuy: null, refSell: null };
   }
 }
 
@@ -223,7 +224,7 @@ function createWidget(data, bcb) {
     }
 
     addCell(stack, COL.offers, row.offers + '/' + CONFIG.rows, 9, C.offers, 'right');
-
+    
     w.addSpacer(2);
   }
 
@@ -235,28 +236,27 @@ function createWidget(data, bcb) {
   divider.size = new Size(0, 1);
   w.addSpacer(3);
 
-  // ── BCB Rows ──
-  // Official rate row
-  const officialStack = w.addStack();
-  officialStack.layoutHorizontally();
-  officialStack.centerAlignContent();
-  addCell(officialStack, COL.bank,   'BCB TC',  9, C.bcb,  'left');
-  addCell(officialStack, COL.buy,    bcb.officialBuy  ? bcb.officialBuy.toFixed(2)  : '—', 9, C.buy,  'right');
-  addCell(officialStack, COL.sell,   bcb.officialSell ? bcb.officialSell.toFixed(2) : '—', 9, C.sell, 'right');
-  addCell(officialStack, COL.spread, 'Oficial', 7, C.dim,  'right');
-  addCell(officialStack, COL.offers, '—',       9, C.dim,  'right');
+  // ── BCB TC Oficial — single value ──
+  const tcoStack = w.addStack();
+  tcoStack.layoutHorizontally();
+  tcoStack.centerAlignContent();
+  addCell(tcoStack, COL.bank,   'BCB TC',  9, C.bcb, 'left');
+  addCell(tcoStack, COL.buy,    bcb.officialRate ? bcb.officialRate.toFixed(2) : '—', 9, C.buy, 'right');
+  addCell(tcoStack, COL.sell,   '—',       9, C.dim, 'right');
+  addCell(tcoStack, COL.spread, 'Oficial', 7, C.dim, 'right');
+  addCell(tcoStack, COL.offers, '—',       9, C.dim, 'right');
 
   w.addSpacer(2);
 
-  // Referencial rate row
+  // ── BCB Referencial — buy / sell ──
   const refStack = w.addStack();
   refStack.layoutHorizontally();
   refStack.centerAlignContent();
-  addCell(refStack, COL.bank,   'BCB REF',  9, C.bcb,  'left');
+  addCell(refStack, COL.bank,   'BCB REF',    9, C.bcb,  'left');
   addCell(refStack, COL.buy,    bcb.refBuy  ? bcb.refBuy.toFixed(2)  : '—', 9, C.buy,  'right');
   addCell(refStack, COL.sell,   bcb.refSell ? bcb.refSell.toFixed(2) : '—', 9, C.sell, 'right');
-  addCell(refStack, COL.spread, 'Referencial', 7, C.dim,  'right');
-  addCell(refStack, COL.offers, '—',        9, C.dim,  'right');
+  addCell(refStack, COL.spread, 'Referenc.',  7, C.dim,  'right');
+  addCell(refStack, COL.offers, '—',          9, C.dim,  'right');
 
   w.addSpacer();
 

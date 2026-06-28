@@ -15,7 +15,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
 
   <style>
-    /* ── Reset & Base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -23,7 +22,6 @@
       --surface:   #0d1829;
       --border:    #1a2d47;
       --accent:    #f59e0b;
-      --accent2:   #fbbf24;
       --buy:       #34d399;
       --sell:      #f87171;
       --spread:    #fcd34d;
@@ -52,7 +50,6 @@
       flex-direction: column;
     }
 
-    /* ── Noise texture overlay ── */
     body::before {
       content: '';
       position: fixed;
@@ -63,7 +60,6 @@
       z-index: 0;
     }
 
-    /* ── Grid background ── */
     body::after {
       content: '';
       position: fixed;
@@ -77,7 +73,6 @@
       z-index: 0;
     }
 
-    /* ── Layout ── */
     .app {
       position: relative;
       z-index: 1;
@@ -90,7 +85,6 @@
       padding: 0 16px 24px;
     }
 
-    /* ── Header ── */
     .header {
       padding: 20px 0 16px;
       display: flex;
@@ -108,9 +102,7 @@
       color: var(--white);
     }
 
-    .header-left h1 span {
-      color: var(--accent);
-    }
+    .header-left h1 span { color: var(--accent); }
 
     .header-left .subtitle {
       font-size: 10px;
@@ -143,28 +135,14 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .refresh-btn:active {
-      background: var(--border);
-    }
+    .refresh-btn:active { background: var(--border); }
+    .refresh-btn svg { transition: transform 0.4s ease; }
+    .refresh-btn.spinning svg { animation: spin 0.6s linear infinite; }
 
-    .refresh-btn svg {
-      transition: transform 0.4s ease;
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .refresh-btn.spinning svg {
-      animation: spin 0.6s linear infinite;
-    }
+    .last-updated { font-size: 9px; color: var(--dim); }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .last-updated {
-      font-size: 9px;
-      color: var(--dim);
-    }
-
-    /* ── Amount selector ── */
     .amount-row {
       display: flex;
       gap: 6px;
@@ -180,11 +158,7 @@
       white-space: nowrap;
     }
 
-    .amount-chips {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
+    .amount-chips { display: flex; gap: 4px; flex-wrap: wrap; }
 
     .chip {
       font-family: var(--font-mono);
@@ -205,7 +179,6 @@
       background: rgba(245, 158, 11, 0.08);
     }
 
-    /* ── Table card ── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -217,9 +190,7 @@
       animation: fadeUp 0.3s ease forwards;
     }
 
-    @keyframes fadeUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
     .card-header {
       padding: 10px 14px 8px;
@@ -238,17 +209,9 @@
       color: var(--muted);
     }
 
-    .card-badge {
-      font-size: 9px;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-    }
+    .card-badge { font-size: 9px; color: var(--muted); letter-spacing: 0.06em; }
 
-    /* ── Table ── */
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    .table { width: 100%; border-collapse: collapse; }
 
     .table th {
       font-size: 8px;
@@ -272,7 +235,6 @@
     }
 
     .table td:first-child { text-align: left; }
-
     .table tr:last-child td { border-bottom: none; }
 
     .table tbody tr {
@@ -280,7 +242,6 @@
       animation: fadeUp 0.25s ease forwards;
     }
 
-    /* staggered row animation */
     .table tbody tr:nth-child(1) { animation-delay: 0.05s; }
     .table tbody tr:nth-child(2) { animation-delay: 0.10s; }
     .table tbody tr:nth-child(3) { animation-delay: 0.15s; }
@@ -289,11 +250,7 @@
     .table tbody tr:nth-child(6) { animation-delay: 0.30s; }
     .table tbody tr:nth-child(7) { animation-delay: 0.35s; }
 
-    .bank-name {
-      color: var(--white);
-      font-weight: 700;
-    }
-
+    .bank-name { color: var(--white); font-weight: 700; }
     .val-buy    { color: var(--buy); }
     .val-sell   { color: var(--sell); }
     .val-spread { color: var(--spread); font-size: 10px; }
@@ -301,12 +258,55 @@
     .val-bcb    { color: var(--bcb); }
     .val-muted  { color: var(--muted); }
 
-    /* ── BCB card ── */
-    .bcb-card {
-      animation-delay: 0.2s;
+    .bcb-card   { animation-delay: 0.15s; }
+    .widget-card { animation-delay: 0.25s; }
+
+    .widget-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
-    /* ── Skeleton loader ── */
+    .widget-desc { font-size: 10px; color: var(--muted); line-height: 1.6; }
+
+    .widget-step {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .widget-step-secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .widget-step-primary {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .widget-step-primary:active  { background: rgba(245, 158, 11, 0.16); }
+    .widget-step-secondary:active { background: var(--border); }
+
+    .widget-hint {
+      font-size: 9px;
+      color: var(--dim);
+      text-align: center;
+      line-height: 1.6;
+    }
+
     .skeleton {
       background: linear-gradient(90deg, var(--border) 25%, var(--dim) 50%, var(--border) 75%);
       background-size: 200% 100%;
@@ -320,7 +320,6 @@
       100% { background-position: -200% 0; }
     }
 
-    /* ── Footer ── */
     .footer {
       margin-top: auto;
       padding-top: 16px;
@@ -331,12 +330,8 @@
       line-height: 1.6;
     }
 
-    .footer a {
-      color: var(--muted);
-      text-decoration: none;
-    }
+    .footer a { color: var(--muted); text-decoration: none; }
 
-    /* ── Error state ── */
     .error-row td {
       color: var(--muted);
       font-size: 10px;
@@ -348,7 +343,6 @@
 <body>
   <div class="app">
 
-    <!-- Header -->
     <header class="header">
       <div class="header-left">
         <h1>Dólar <span>BO</span></h1>
@@ -366,7 +360,6 @@
       </div>
     </header>
 
-    <!-- Amount selector -->
     <div class="amount-row">
       <span class="amount-label">Monto Bs.</span>
       <div class="amount-chips">
@@ -381,7 +374,7 @@
     <div class="card" id="p2pCard">
       <div class="card-header">
         <span class="card-title">P2P Binance</span>
-        <span class="card-badge" id="p2pBadge">avg top 5</span>
+        <span class="card-badge">avg top 5</span>
       </div>
       <table class="table">
         <thead>
@@ -393,9 +386,7 @@
             <th>OF</th>
           </tr>
         </thead>
-        <tbody id="p2pBody">
-          <!-- filled by JS -->
-        </tbody>
+        <tbody id="p2pBody"></tbody>
       </table>
     </div>
 
@@ -414,22 +405,17 @@
             <th colspan="2"></th>
           </tr>
         </thead>
-        <tbody id="bcbBody">
-          <!-- filled by JS -->
-        </tbody>
+        <tbody id="bcbBody"></tbody>
       </table>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div>Precios referenciales · No es asesoría financiera</div>
-      <div>Auto-actualiza cada 5 min · <span id="footerAmount">Bs. 1.000</span></div>
-    </footer>
-
-  </div>
+    <!-- TODO: Add widget card with instructions for buying/selling USDT in Bolivia -->
 
   <script>
-    // ── Config ──────────────────────────────────────────────────────────────
+    // ── Config ────────────────────────────────────────────────────────────────
+
+    // Cloudflare Worker — CORS proxy for Binance P2P and BCB
+    const WORKER = 'https://dolar-bo.proxy-serverless.workers.dev';
 
     const CONFIG = {
       rows:    5,
@@ -444,14 +430,12 @@
       { id: 'BancoUnion',      label: 'Union'     },
       { id: 'BancoGanadero',   label: 'Ganadero'  },
       { id: 'BancoSantaCruz',  label: 'Mercantil' },
-      { id: 'TigoMoney',       label: 'Tigo'      },
-      { id: 'BancoEconomico',  label: 'Economico' },
       { id: 'BancoDeCredito',  label: 'BCP'       },
     ];
 
     let refreshTimer = null;
 
-    // ── Amount selector ──────────────────────────────────────────────────────
+    // ── Amount selector ───────────────────────────────────────────────────────
 
     function setAmount(val) {
       CONFIG.amount = val;
@@ -461,11 +445,10 @@
       refresh();
     }
 
-    // ── Fetch helpers ────────────────────────────────────────────────────────
-    // TODO: need to look for a server side requests or make a backend proxy to avoid CORS issues with Binance API
+    // ── Fetch helpers ─────────────────────────────────────────────────────────
 
     async function fetchBinance(payType, tradeType) {
-      const res = await fetch('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
+      const res = await fetch(WORKER + '/binance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -516,42 +499,55 @@
 
     async function fetchBCB() {
       try {
-        // corsproxy.io relays the request to bypass CORS
-        const res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://www.bcb.gob.bo/'), {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15',
-          }
-        });
+        const res  = await fetch(WORKER + '/bcb');
         const html = await res.text();
 
-        // Official rate — bcb-val sm
-        const smMatches = html.match(/class="bcb-val sm">([\d,]+)</g) || [];
-        const parseVal = s => s ? parseFloat(s.replace(/class="bcb-val(?:\s+sm)?">/, '').replace('<', '').replace(',', '.')) : null;
-        const officialBuy  = parseVal(smMatches[0]);
-        const officialSell = parseVal(smMatches[1]);
+        // ── Official rate — single value in bcb-tco-num ──
+        // Slice between 'Tipo de cambio oficial' and 'Valor referencial'
+        const tcoStart = html.indexOf('Tipo de cambio oficial');
+        const refStart = html.indexOf('Valor referencial del d');
+        const tcoHtml  = (tcoStart !== -1 && refStart !== -1)
+          ? html.slice(tcoStart, refStart)
+          : '';
+        const tcoMatch   = tcoHtml.match(/class="bcb-tco-num">([\d,]+)</);
+        const officialRate = tcoMatch
+          ? parseFloat(tcoMatch[1].replace(',', '.'))
+          : null;
 
-        // Referencial — bcb-val without sm, after the heading
-        const refIdx = html.indexOf('Valor referencial del d');
-        const refHtml = refIdx !== -1 ? html.slice(refIdx) : '';
+        // ── Referencial — buy/sell in bcb-val ──
+        // Slice between 'Valor referencial del d' and 'Operaciones de mercado abierto'
+        const omaStart = html.indexOf('Operaciones de mercado abierto');
+        const refHtml  = (refStart !== -1 && omaStart !== -1)
+          ? html.slice(refStart, omaStart)
+          : '';
         const refMatches = refHtml.match(/class="bcb-val">([\d,]+)</g) || [];
+
+        function parseVal(s) {
+          return s
+            ? parseFloat(s.replace(/class="bcb-val">/, '').replace('<', '').replace(',', '.'))
+            : null;
+        }
+
         const refBuy  = parseVal(refMatches[0]);
         const refSell = parseVal(refMatches[1]);
 
-        return { officialBuy, officialSell, refBuy, refSell };
+        return { officialRate, refBuy, refSell };
       } catch (e) {
-        return { officialBuy: null, officialSell: null, refBuy: null, refSell: null };
+        return { officialRate: null, refBuy: null, refSell: null };
       }
     }
 
-    // ── Render helpers ───────────────────────────────────────────────────────
+    // ── Render helpers ────────────────────────────────────────────────────────
 
-    function fmt(val, dec) {
+    function fmt(val) {
       if (val === null || val === undefined) return '<span class="val-muted">—</span>';
-      return val.toFixed(dec !== undefined ? dec : 2);
+      return val.toFixed(2);
     }
 
     function skeletonRow(cols) {
-      return '<tr>' + Array(cols).fill('<td><span class="skeleton" style="width:40px;height:10px;"></span></td>').join('') + '</tr>';
+      return '<tr>' + Array(cols).fill(
+        '<td><span class="skeleton" style="width:40px;height:10px;"></span></td>'
+      ).join('') + '</tr>';
     }
 
     function renderP2P(data) {
@@ -580,22 +576,25 @@
       body.innerHTML = `
         <tr>
           <td><span class="val-bcb">TC Oficial</span></td>
-          <td class="val-buy">${fmt(bcb.officialBuy)}</td>
-          <td class="val-sell">${fmt(bcb.officialSell)}</td>
-          <td colspan="2" class="val-muted" style="font-size:9px">Tipo de cambio</td>
+          <td class="val-buy" colspan="2">${fmt(bcb.officialRate)}</td>
+          <td colspan="2" class="val-muted" style="font-size:9px">Bs por 1 USD</td>
         </tr>
         <tr>
-          <td><span class="val-bcb">Referencial</span></td>
-          <td class="val-buy">${fmt(bcb.refBuy)}</td>
-          <td class="val-sell">${fmt(bcb.refSell)}</td>
+          <td><span class="val-bcb">REF Compra</span></td>
+          <td class="val-buy" colspan="2">${fmt(bcb.refBuy)}</td>
+          <td colspan="2" class="val-muted" style="font-size:9px">Valor referencial</td>
+        </tr>
+        <tr>
+          <td><span class="val-bcb">REF Venta</span></td>
+          <td class="val-sell" colspan="2">${fmt(bcb.refSell)}</td>
           <td colspan="2" class="val-muted" style="font-size:9px">Valor referencial</td>
         </tr>
       `;
     }
 
     function showSkeletons() {
-      document.getElementById('p2pBody').innerHTML = Array(7).fill(skeletonRow(5)).join('');
-      document.getElementById('bcbBody').innerHTML = Array(2).fill(skeletonRow(4)).join('');
+      document.getElementById('p2pBody').innerHTML = Array(5).fill(skeletonRow(5)).join('');
+      document.getElementById('bcbBody').innerHTML = Array(3).fill(skeletonRow(4)).join('');
     }
 
     function updateTimestamp() {
@@ -604,7 +603,7 @@
         'Actualizado ' + now.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
     }
 
-    // ── Main refresh ─────────────────────────────────────────────────────────
+    // ── Main refresh ──────────────────────────────────────────────────────────
 
     async function refresh() {
       const btn = document.getElementById('refreshBtn');
@@ -622,13 +621,11 @@
       }
 
       btn.classList.remove('spinning');
-
-      // Reset auto-refresh timer
       if (refreshTimer) clearTimeout(refreshTimer);
       refreshTimer = setTimeout(refresh, CONFIG.refresh);
     }
 
-    // ── Init ─────────────────────────────────────────────────────────────────
+    // ── Init ──────────────────────────────────────────────────────────────────
     refresh();
   </script>
 </body>
