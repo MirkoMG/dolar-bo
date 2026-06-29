@@ -247,8 +247,6 @@
     .table tbody tr:nth-child(3) { animation-delay: 0.15s; }
     .table tbody tr:nth-child(4) { animation-delay: 0.20s; }
     .table tbody tr:nth-child(5) { animation-delay: 0.25s; }
-    .table tbody tr:nth-child(6) { animation-delay: 0.30s; }
-    .table tbody tr:nth-child(7) { animation-delay: 0.35s; }
 
     .bank-name { color: var(--white); font-weight: 700; }
     .val-buy    { color: var(--buy); }
@@ -258,54 +256,7 @@
     .val-bcb    { color: var(--bcb); }
     .val-muted  { color: var(--muted); }
 
-    .bcb-card   { animation-delay: 0.15s; }
-    .widget-card { animation-delay: 0.25s; }
-
-    .widget-body {
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .widget-desc { font-size: 10px; color: var(--muted); line-height: 1.6; }
-
-    .widget-step {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      text-decoration: none;
-      transition: border-color 0.15s, background 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .widget-step-secondary {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
-
-    .widget-step-primary {
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    .widget-step-primary:active  { background: rgba(245, 158, 11, 0.16); }
-    .widget-step-secondary:active { background: var(--border); }
-
-    .widget-hint {
-      font-size: 9px;
-      color: var(--dim);
-      text-align: center;
-      line-height: 1.6;
-    }
+    .bcb-card { animation-delay: 0.15s; }
 
     .skeleton {
       background: linear-gradient(90deg, var(--border) 25%, var(--dim) 50%, var(--border) 75%);
@@ -400,8 +351,7 @@
         <thead>
           <tr>
             <th>Tipo</th>
-            <th>Compra</th>
-            <th>Venta</th>
+            <th colspan="2">Valor</th>
             <th colspan="2"></th>
           </tr>
         </thead>
@@ -409,14 +359,21 @@
       </table>
     </div>
 
-    <!-- TODO: Add widget card with instructions for buying/selling USDT in Bolivia -->
+    <footer class="footer">
+      <div>Precios referenciales · No es asesoría financiera</div>
+      <div>Auto-actualiza cada 5 min · <span id="footerAmount">Bs. 1.000</span></div>
+      <div style="margin-top: 6px;">
+        <a href="https://github.com/mirkomg/dolar-bo" target="_blank">github.com/mirkomg/dolar-bo</a>
+      </div>
+    </footer>
+
+  </div>
 
   <script>
     // ── Config ────────────────────────────────────────────────────────────────
 
-    // Cloudflare Worker — CORS proxy for Binance P2P and BCB
+    // Deno Deploy — CORS proxy for Binance P2P and BCB
     const WORKER = 'https://graceful-clownfish-8748.mirkomg.deno.net';
-
 
     const CONFIG = {
       rows:    5,
@@ -503,38 +460,20 @@
         const res  = await fetch(WORKER + '/bcb');
         const html = await res.text();
 
-        // ── Official rate — single value in bcb-tco-num ──
-        // Slice between 'Tipo de cambio oficial' and 'Valor referencial'
         const tcoStart = html.indexOf('Tipo de cambio oficial');
-        const refStart = html.indexOf('Valor referencial del d');
-        const tcoHtml  = (tcoStart !== -1 && refStart !== -1)
-          ? html.slice(tcoStart, refStart)
+        const omaStart = html.indexOf('Operaciones de mercado abierto');
+        const tcoHtml  = (tcoStart !== -1 && omaStart !== -1)
+          ? html.slice(tcoStart, omaStart)
           : '';
-        const tcoMatch   = tcoHtml.match(/class="bcb-tco-num">([\d,]+)</);
+
+        const tcoMatch     = tcoHtml.match(/class="bcb-tco-num">([\d,]+)</);
         const officialRate = tcoMatch
           ? parseFloat(tcoMatch[1].replace(',', '.'))
           : null;
 
-        // ── Referencial — buy/sell in bcb-val ──
-        // Slice between 'Valor referencial del d' and 'Operaciones de mercado abierto'
-        const omaStart = html.indexOf('Operaciones de mercado abierto');
-        const refHtml  = (refStart !== -1 && omaStart !== -1)
-          ? html.slice(refStart, omaStart)
-          : '';
-        const refMatches = refHtml.match(/class="bcb-val">([\d,]+)</g) || [];
-
-        function parseVal(s) {
-          return s
-            ? parseFloat(s.replace(/class="bcb-val">/, '').replace('<', '').replace(',', '.'))
-            : null;
-        }
-
-        const refBuy  = parseVal(refMatches[0]);
-        const refSell = parseVal(refMatches[1]);
-
-        return { officialRate, refBuy, refSell };
+        return { officialRate };
       } catch (e) {
-        return { officialRate: null, refBuy: null, refSell: null };
+        return { officialRate: null };
       }
     }
 
@@ -580,22 +519,12 @@
           <td class="val-buy" colspan="2">${fmt(bcb.officialRate)}</td>
           <td colspan="2" class="val-muted" style="font-size:9px">Bs por 1 USD</td>
         </tr>
-        <tr>
-          <td><span class="val-bcb">REF Compra</span></td>
-          <td class="val-buy" colspan="2">${fmt(bcb.refBuy)}</td>
-          <td colspan="2" class="val-muted" style="font-size:9px">Valor referencial</td>
-        </tr>
-        <tr>
-          <td><span class="val-bcb">REF Venta</span></td>
-          <td class="val-sell" colspan="2">${fmt(bcb.refSell)}</td>
-          <td colspan="2" class="val-muted" style="font-size:9px">Valor referencial</td>
-        </tr>
       `;
     }
 
     function showSkeletons() {
       document.getElementById('p2pBody').innerHTML = Array(5).fill(skeletonRow(5)).join('');
-      document.getElementById('bcbBody').innerHTML = Array(3).fill(skeletonRow(4)).join('');
+      document.getElementById('bcbBody').innerHTML = skeletonRow(4);
     }
 
     function updateTimestamp() {
