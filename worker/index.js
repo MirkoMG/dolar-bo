@@ -89,27 +89,6 @@ async function handleBinance(req, corsHeaders) {
   });
 }
 
-// ── /bcb — GET, uses Deno CDN cache via Cache-Control headers ─────────────────
-
-async function handleBCB(corsHeaders) {
-  const res = await fetch("https://www.bcb.gob.bo/", {
-    headers: {
-      Accept: "text/html,application/xhtml+xml",
-      "Accept-Language": "es-BO,es;q=0.9",
-    },
-  });
-  const html = await res.text();
-
-  // Deno's CDN caches this GET response automatically via s-maxage
-  return new Response(html, {
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "text/html",
-      "Cache-Control": "public, s-maxage=" + CACHE_TTL_BCB,
-    },
-  });
-}
-
 // ── /health ───────────────────────────────────────────────────────────────────
 
 function handleHealth(corsHeaders) {
@@ -134,7 +113,6 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
 
   if (url.pathname === "/binance") return handleBinance(req, corsHeaders);
-  if (url.pathname === "/bcb") return handleBCB(corsHeaders);
   if (url.pathname === "/health") return handleHealth(corsHeaders);
 
   return new Response("Not found", { status: 404, headers: corsHeaders });

@@ -457,21 +457,12 @@
 
     async function fetchBCB() {
       try {
-        const res  = await fetch(WORKER + '/bcb');
-        const html = await res.text();
+        const res  = await fetch('https://api.factura.bo/ExchangeRate');
+        const json = await res.json();
 
-        const tcoStart = html.indexOf('Tipo de cambio oficial');
-        const omaStart = html.indexOf('Operaciones de mercado abierto');
-        const tcoHtml  = (tcoStart !== -1 && omaStart !== -1)
-          ? html.slice(tcoStart, omaStart)
-          : '';
+        if (!json.ok || !json.datos) return { officialRate: null };
 
-        const tcoMatch     = tcoHtml.match(/class="bcb-tco-num">([\d,]+)</);
-        const officialRate = tcoMatch
-          ? parseFloat(tcoMatch[1].replace(',', '.'))
-          : null;
-
-        return { officialRate };
+        return { officialRate: json.datos.usd_bob };
       } catch (e) {
         return { officialRate: null };
       }

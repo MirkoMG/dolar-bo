@@ -82,27 +82,12 @@ function addCell(parent, width, text, size, hex, align) {
 
 async function fetchBCB() {
   try {
-    const req = new Request("https://www.bcb.gob.bo/");
-    req.headers = {
-      "User-Agent":
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15",
-      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      "Accept-Language": "es-BO,es;q=0.9",
-    };
-    const html = await req.loadString();
+    const req = new Request("https://api.factura.bo/ExchangeRate");
+    const json = await req.loadJSON();
 
-    // Slice between TC Oficial heading and OMA heading
-    const tcoStart = html.indexOf("Tipo de cambio oficial");
-    const omaStart = html.indexOf("Operaciones de mercado abierto");
-    const tcoHtml =
-      tcoStart !== -1 && omaStart !== -1 ? html.slice(tcoStart, omaStart) : "";
+    if (!json.ok || !json.datos) return { officialRate: null };
 
-    const tcoMatch = tcoHtml.match(/class="bcb-tco-num">([\d,]+)</);
-    const officialRate = tcoMatch
-      ? parseFloat(tcoMatch[1].replace(",", "."))
-      : null;
-
-    return { officialRate };
+    return { officialRate: json.datos.usd_bob };
   } catch (e) {
     return { officialRate: null };
   }
