@@ -132,7 +132,7 @@ const BANKS = [
 | Source | Data | Frequency |
 |--------|------|-----------|
 | [Binance P2P](https://p2p.binance.com) | Buy and sell prices per bank | Real time |
-| [BCB](https://www.bcb.gob.bo) | Official rate + Reference value | Daily |
+| [api.factura.bo](https://api.factura.bo/ExchangeRate) | Third party BCB official exchange rate (USD/BOB) | Daily |
 
 > ⚠️ Prices are for reference only. This is not financial advice.
 
