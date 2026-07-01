@@ -132,7 +132,7 @@ const BANKS = [
 | Fuente | Datos | Frecuencia |
 |--------|-------|------------|
 | [Binance P2P](https://p2p.binance.com) | Precios de compra y venta por banco | Tiempo real |
-| [BCB](https://www.bcb.gob.bo) | TC oficial + Valor referencial | Diario |
+| [api.factura.bo](https://api.factura.bo/ExchangeRate) | API externa: Tipo de cambio oficial BCB (USD/BOB) | Diario |
 
 > ⚠️ Los precios son referenciales. No constituyen asesoría financiera.
 
